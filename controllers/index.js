@@ -1,75 +1,65 @@
-const fs = require("fs").promises;
-const path = require("path");
-const nanoid = require("nanoid");
+const { getAllUsers, createUser, updateUser } = require("../services/index");
 
-const tasksPath = path.join(__dirname, "..", "db", "tasks.json");
-
-console.log(tasksPath);
-
-// ! list task
-async function listTasks() {
+const get = async (req, res, next) => {
   try {
-    const data = await fs.readFile(tasksPath, "utf-8");
-    const tasks = JSON.parse(data);
-    return tasks;
+    const results = await getAllUsers();
+    res.json({
+      status: "Success",
+      code: 200,
+      data: results,
+    });
   } catch (error) {
-    console.error("Eroare la citirea fisierului:", error);
-    throw error; // Poți arunca eroarea sau să o gestionezi altfel
+    res.status(404).json({
+      status: "error",
+      code: 404,
+    });
+    next(error);
   }
-}
+};
 
-// ! add task
-async function addTask(task) {
-  if (!task) {
-    console.error("Trebuie să completezi task-ul");
-    return;
-  }
-
+const create = async (req, res, next) => {
   try {
-    // Citire din baza de date
-    const data = await fs.readFile(tasksPath, "utf-8");
-    const tasks = JSON.parse(data);
-    const newTask = { id: String(Date.now()), task: task };
+    const { nume, varsta, anNastere, oras, cetatenie, major } = req.body;
+    const result = await createUser({
+      nume,
+      varsta,
+      anNastere,
+      oras,
+      cetatenie,
+      major,
+    });
 
-    tasks.push(newTask);
+    res.status(201).json({
+      status: "succes",
+      code: 201,
+      data: result,
+    });
+  } catch (error) {}
+};
 
-    // Scrierea în baza de date
-    await fs.writeFile(tasksPath, JSON.stringify(tasks, null, 2));
-
-    console.log("Task-ul a fost adăugat!");
-
-    return newTask;
-  } catch (error) {
-    console.error("Eroare la adăugarea task-ului:", error);
-  }
-}
-
-async function deleteTask(taskId) {
+const update = async (req, res, next) => {
+  const { userId } = req.params;
+  const { major } = req.body;
   try {
-    // Citire din baza de date
-    const data = await fs.readFile(tasksPath, "utf-8");
-    const tasks = JSON.parse(data);
-
-    // Găsirea indexului task-ului de șters
-    const index = tasks.findIndex((task) => task.id === taskId);
-
-    if (index !== -1) {
-      // Ștergerea task-ului
-      tasks.splice(index, 1);
-
-      // Scrierea în baza de date fără task-ul șters
-      await fs.writeFile(tasksPath, JSON.stringify(tasks, null, 2));
-      console.log(`Task-ul cu ID-ul ${taskId} a fost șters.`);
-    } else {
-      console.error(`Task-ul cu ID-ul ${taskId} nu a fost găsit.`);
+    const result = await updateUser(userId, { major });
+    console.log(result);
+    if (result) {
+      res.status(200).json({
+        status: "updated",
+        code: 200,
+        data: result,
+      });
     }
   } catch (error) {
-    console.error("Eroare la ștergerea task-ului:", error);
+    console.log(error);
+    res.status(404).json({
+      status: "error",
+    });
   }
-}
+};
 
 module.exports = {
-  listTasks,
-  addTask,
-  deleteTask,
+  get,
+  create,
+  update,
 };

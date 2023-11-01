@@ -1,6 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const routerApi = require("./routes/index.js");
 const coreOptions = require("./cors");
@@ -32,8 +36,17 @@ app.use((err, _, res, __) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT_SERVER || 5000;
+const URL_DB = process.env.DB_URL;
 
-app.listen(PORT, () => {
-  console.log(`Server running. Use our API on port: ${PORT}`);
-});
+mongoose
+  .connect(URL_DB)
+  .then(() => {
+    console.log("Serverul MongoDB ruleaza");
+    app.listen(PORT, () => {
+      console.log(`Server running. Use our API on port: ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log(`Serverul nu realza. Eroare:${err.message}`);
+  });
