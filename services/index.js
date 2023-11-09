@@ -29,7 +29,7 @@ const checkUserDB = async ({ email, password }) => {
   try {
     console.log(`Parola:${password}`);
     const user = await User.findOne({ email });
-    console.log(user);
+
     // if (!user) {
     //   throw new Error("User-ul nu exista in baza de date!");
     // }
@@ -37,7 +37,7 @@ const checkUserDB = async ({ email, password }) => {
     //   throw new Error("Parola este gresita");
     // }
 
-    if (!user || user.password !== password) {
+    if (!user || !user.validPassword(password)) {
       throw new Error("Email sau parola gresita!");
     }
 
@@ -59,10 +59,16 @@ const updateUser = async (id, majorUpdate) => {
   );
 };
 
+const findUserName = async (user) => {
+  const result = await User.findOne({ email: user.email });
+  return result;
+};
+
 module.exports = {
   getAllUsers,
   createUser,
   updateUser,
   checkUserDB,
   getAllTutors,
+  findUserName,
 };

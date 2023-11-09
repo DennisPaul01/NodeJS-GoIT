@@ -6,14 +6,15 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   email: { type: String, require: true, minLength: 2 },
   password: { type: String, require: true, minLength: 2 },
+  name: { type: String, require: true, minLength: 2 },
 });
 
-userSchema.methods.setPassword = (password) => {
+userSchema.methods.setPassword = function (password) {
+  console.log(this);
   this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(6));
 };
 
-userSchema.methods.validPassword = (password) => {
-  // passwordFrontend === dcripata(passwordBackend)
+userSchema.methods.validPassword = function (password) {
   return bCrypt.compareSync(password, this.password);
 };
 

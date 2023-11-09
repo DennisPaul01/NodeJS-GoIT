@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+require("./middlewares/passportConfig.js");
+
 const routerApi = require("./routes/index.js");
 const coreOptions = require("./cors");
 
