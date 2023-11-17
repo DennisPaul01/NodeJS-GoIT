@@ -55,3 +55,7 @@ mongoose
   .catch((err) => {
     console.log(`Serverul nu realza. Eroare:${err.message}`);
   });
+
+module.exports = {
+  app,
+};
